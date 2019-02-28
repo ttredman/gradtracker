@@ -1,1 +1,2 @@
-# CS 455 GradTracker Project
+# GradTracker
+Application to track graduate information
