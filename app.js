@@ -1,60 +1,41 @@
-const express = require('express');
-const app = express();
-const router = express.Router();
-const MongoClient = require('mongodb').MongoClient;
-const bodyParser = require('body-parser');
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
 
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
 
+var app = express();
 
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
-MongoClient.connect('mongodb://localhost:27017', { useNewUrlParser: true }, (err, client) => {
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
-	if (err) throw err;
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 
-	app.use(bodyParser.json());
-	app.use(bodyParser.urlencoded({ extended: true }));
-	app.use(express.static('public'));
-
-	app.get('/', (req, res) => {
-		res.sendFile(__dirname + '/index.html');
-	});
-
-
-	const db = client.db('gradtracker');
-	app.get('/api/datatable', (req, res) => {
-
-		db.collection('students').find({}).toArray((err, results) => {
-
-			if (err) throw err;
-			console.log(results);
-			let dataSet = new Array();
-			for (let i = 0; i < results.length; i++) {
-				let fieldArr = new Array();
-				fieldArr.push(results[i].lnumber.toString());
-				fieldArr.push(results[i].lastname.toString());
-				fieldArr.push(results[i].firstname.toString());
-				//				fieldArr.push(results[i].street.toString());
-				//				fieldArr.push(results[i].city.toString());
-				//				fieldArr.push(results[i].state.toString());
-				//				fieldArr.push(results[i].zip.toString());
-				fieldArr.push(results[i].gradyear.toString());
-				fieldArr.push(results[i].gradsemester.toString());
-				fieldArr.push(results[i].major.toString());
-				//				fieldArr.push(results[i].currentemployer.toString());
-				//				fieldArr.push(results[i].currentsalary.toString());
-				//				fieldArr.push(results[i].email.toString());
-				dataSet.push(fieldArr);
-			}
-
-
-			res.end(JSON.stringify(dataSet));
-
-		});
-
-	});
-
-	app.listen(8080, () => {
-		console.log('Server Ready');
-	});
-
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
 });
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;

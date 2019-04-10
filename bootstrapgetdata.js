@@ -1,3 +1,5 @@
+/* global $PORT */
+
 const express = require('express');
 const app = express();
 const router = express.Router();
@@ -8,7 +10,7 @@ app.listen(8080, () => console.log('Server Ready'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.get('/', (req, res) => res.sendFile('/home/ec2-user/environment/GradTracker/index.html'));
+app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
 
 app.get('/api/datatable', function(request, response) {
@@ -16,7 +18,7 @@ app.get('/api/datatable', function(request, response) {
 	// let mongoarray = db.collection('cars').find({type: "truck"}).toArray();
 	//   each document would look like: {field1: string, field2: int, field3: double, .... };
 	//     mongo array would be array of those docs
-	// let dataSet = []
+	// let dataSet = [];
 	// for(let i = 0, i < mongoarray.length; i++) {
 	// let fieldArr = [];
 	// fieldArr.push(mongoarray[i].field1.toString()); 
